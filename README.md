@@ -36,8 +36,10 @@ coverage of the downloaded files. -->
 - **Retrieved:** <!-- TODO: fill in retrieval date and exact source URLs
   when the files are downloaded into data/raw/. -->
 
-Raw files are not committed (`data/raw/` is gitignored); they are
-re-downloadable from the source above.
+Raw files are committed in `data/raw/` **unmodified, under their original
+filenames**, redistributed under the Open Government Licence v3.0 with
+attribution to HSE. <!-- TODO: list each committed file with its exact
+source URL and download date. -->
 
 ## Structure
 
