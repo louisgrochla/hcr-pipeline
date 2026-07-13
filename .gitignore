@@ -1,0 +1,29 @@
+# Raw data is never committed (HSE source files are re-downloadable; see README provenance)
+data/raw/*
+!data/raw/.gitkeep
+
+# Python noise
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+.env
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
