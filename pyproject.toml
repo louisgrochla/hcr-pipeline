@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hcr"
+version = "0.1.0"
+description = "Reproducible cleaning and quality-profiling pipeline for the UK offshore Hydrocarbon Release Database (HSE)"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "openpyxl",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+src = ["src", "tests"]
