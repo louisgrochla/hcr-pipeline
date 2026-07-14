@@ -100,6 +100,17 @@ files; category consolidation is an explicit reviewable table
 free text that cannot be honestly recovered stays failing, and the
 failure count is itself a published finding.
 
+## How this was built
+
+Built with AI pair-assistance (Claude Code) under my direction: I chose
+the dataset and scope, sourced and verified the HSE files, made and
+reviewed every schema-mapping and cleaning judgement, and validated the
+findings against the raw data. The rationale for each decision is
+documented in [`reports/schema_mapping.md`](reports/schema_mapping.md),
+and every reported number is reproducible from the package alone —
+which is the standard I'd hold this work to regardless of what tools
+produced it.
+
 ## Data provenance
 
 - **Source:** HSE offshore hydrocarbon release statistics (UK Health and
