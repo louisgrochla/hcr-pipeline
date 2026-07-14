@@ -225,7 +225,7 @@ def source_mapping_for_year(year: int) -> dict[str, str]:
     return YEAR_TO_SOURCE_COLUMNS[year]
 
 
-#: Category-synonym table (Day 3): {canonical_column: {observed: target}}.
+#: Category-synonym table: {canonical_column: {observed: target}}.
 #: Keys are values AS OBSERVED AFTER case/whitespace normalisation
 #: (uppercase, collapsed spaces). Only meaning-preserving consolidations
 #: are included — spelling variants, typos, abbreviations, and sub-values

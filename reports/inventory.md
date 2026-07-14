@@ -1,4 +1,4 @@
-# Raw data inventory — Day 1
+# Raw data inventory
 
 Status of `data/raw/` as received. Facts below are measured from the files
 with `hcr.ingest` plus manual inspection; nothing is assumed from
@@ -53,8 +53,8 @@ The new file's sheets have a single header row.
 Semantically corresponding fields exist across eras under different
 labels (e.g. `Incident Date` ↔ `Event Date`; `Severity` ↔ the label
 above; both eras: `Equivalent hole diameter [mm]`, identical label but
-different position/context). Building that correspondence is the Day 2
-mapping table. Verbatim column lists for both eras are preserved for the
+different position/context). Building that correspondence is the
+schema-mapping stage (`reports/schema_mapping.md`). Verbatim column lists for both eras are preserved for the
 mapping work. Spelling drift exists inside the taxonomy labels
 themselves: `System Quarternary` (era 1) vs `System Quaternary` (era 2).
 
@@ -77,7 +77,7 @@ with the data and each other: the download-page link says "1992 – 2016",
 the filename says 1992–2014, the Introduction sheet says coverage to
 31 Dec 2014 — the rows say 1992–2015.
 
-## Data-quality observations (to hunt on Day 3–5)
+## Data-quality observations
 
 Catalogued now, quantified/handled later:
 
@@ -90,7 +90,7 @@ Catalogued now, quantified/handled later:
 3. **Hole-size rounding artefact — confirmed present:** 1,002 records at
    exactly 1 mm and 224 at exactly 2 mm vs only 393 in the whole open
    interval (1, 2) mm. Inch-conversion spikes also visible (12.7, 25.4).
-   To be quantified properly on Day 5.
+   Quantified properly in `reports/profiling.md`.
 4. **Severity category drift (era 2):** case-inconsistent values within
    the same sheets — `Minor` alongside `MINOR` (2018: 2 rows, 2020: 5
    rows); `Awaiting Classification` (2021) vs era 1's
@@ -113,7 +113,8 @@ Catalogued now, quantified/handled later:
    (PROCESS 4,085 / NON-PROCESS 571) with `Non Process Type` (DIESEL,
    LUB OIL, …); `Operational Mode - Primary` values such as
    `SHUTTING DOWN/SHUTDOWN/BLOWDOWN`. How to identify deliberate
-   releases is a **judgement call requiring a decision** — TODO(Day 2/3).
+   releases is a **judgement call** — resolved in `reports/schema_mapping.md`
+   (flag, don't drop).
 10. **Voluntary reporting:** the OIR/12 return is voluntary (per the
     Introduction sheet) — an under-reporting caveat for all analysis.
 11. **Filename with en-dash:** `hsr1992–2014.xlsx` contains U+2013, kept

@@ -1,4 +1,4 @@
-# Analysis — Day 6
+# Analysis: cause-mix change in serious releases
 
 ## Question
 

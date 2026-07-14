@@ -59,10 +59,10 @@ hand-edited images.
 ├── notebooks/01_eda.ipynb    exploration only; nothing load-bearing
 └── reports/
     ├── data_quality.md       THE deliverable (2 pages, client-facing)
-    ├── inventory.md          Day 1: what the raw files actually contain
-    ├── schema_mapping.md     Day 2–3: every mapping judgement, with rationale
-    ├── profiling.md          Day 5: quantified data-quality findings
-    └── analysis.md           Day 6: one question, answered with stated method
+    ├── inventory.md          what the raw files actually contain
+    ├── schema_mapping.md     every mapping judgement, with rationale
+    ├── profiling.md          quantified data-quality findings
+    └── analysis.md           one question, answered with stated method
 ```
 
 ## Usage
