@@ -18,6 +18,10 @@ dev = [
     "pytest",
     "ruff",
     "matplotlib",
+    "scikit-learn",
+]
+nlp = [
+    "scikit-learn",
 ]
 
 [tool.setuptools.packages.find]

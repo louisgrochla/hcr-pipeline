@@ -54,6 +54,9 @@ CANONICAL_COLUMNS: dict[str, str] = {
     # two raw inputs — the only derived field in the schema):
     "process_or_non_process": "string",
     "non_process_type": "string",
+    # free-text incident narrative (era 1: 'Comments'; era 2: the long
+    # description field). Used by hcr.causemodel; never validated.
+    "description": "string",
 }
 
 # ---------------------------------------------------------------------------
@@ -90,6 +93,7 @@ ERA1_SOURCE_TO_CANONICAL: dict[str, str] = {
     "Did ignition occur": "ignition_occurred",
     "Non-process/ Process?": "process_or_non_process",
     "Non Process Type": "non_process_type",
+    "Comments": "description",
 }
 
 ERA2_SOURCE_TO_CANONICAL: dict[str, str] = {
@@ -116,6 +120,10 @@ ERA2_SOURCE_TO_CANONICAL: dict[str, str] = {
     "Did ignition occur?": "ignition_occurred",
     # era 2 has no explicit PROCESS/NON-PROCESS column; only the type:
     " Non Process Type": "non_process_type",
+    # trailing period distinguishes this from a same-named era-2 column:
+    "Description of circumstances, consequences of event and emergency response.": (
+        "description"
+    ),
 }
 
 ERA1_YEARS = range(1992, 2016)

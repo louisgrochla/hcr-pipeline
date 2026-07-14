@@ -135,10 +135,11 @@ be excluded.
    uncertainty statement.
 2. **For trend reporting:** anchor severity trends at 1999, annualise
    or exclude 1992, and stop quantity-based series at 2018.
-3. **For cause analysis after 2016:** re-code from the free-text
-   descriptions before drawing conclusions — the coded fields alone are
-   ~17% unresolvable. (A supervised text-classification approach is a
-   natural next step for this repository.)
+3. **For cause analysis after 2016:** treat the ~17% unresolvable
+   residual as permanent. Recovering the codes from the incident
+   narratives was tested and does not work — the text describes what
+   happened, not why (`cause_recovery.md`); repair would need the
+   underlying investigation detail, which is not public.
 4. **For the data owner:** the 2019-onward collapse of quantity
    reporting and the free-text cause fields are fixable at the form
    level; restoring closed pick-lists would recover most of the lost
