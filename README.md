@@ -33,8 +33,16 @@ coverage of the downloaded files. -->
 - **Source:** HSE offshore hydrocarbon release statistics (UK Health and
   Safety Executive, offshore statistics pages).
 - **Licence:** Open Government Licence v3.0.
-- **Retrieved:** <!-- TODO: fill in retrieval date and exact source URLs
-  when the files are downloaded into data/raw/. -->
+- **Retrieved:** 2026-07-13, from:
+  - `hsr1992–2014.xlsx` — [UK Government Web Archive capture of
+    hse.gov.uk](https://webarchive.nationalarchives.gov.uk/ukgwa/20221106163434mp_/https://www.hse.gov.uk/offshore/statistics/hsr1992%E2%80%932014.xlsx)
+    (linked from HSE's offshore statistics page as "Offshore Hydrocarbon
+    Releases 1992 – 2016"; the file itself covers releases to
+    31 Dec 2015 — see `reports/inventory.md`).
+  - `hcr2016-2021.xlsx` —
+    [hse.gov.uk](https://www.hse.gov.uk/offshore/assets/docs/hcr2016-2021.xlsx)
+    ("Offshore Hydrocarbon Releases 2016 – 2021"; 2021 data marked
+    provisional by HSE).
 
 Raw files are committed in `data/raw/` **unmodified, under their original
 filenames**, redistributed under the Open Government Licence v3.0 with

@@ -9,8 +9,8 @@ contents).
 
 | File | Size | Format | Sheets | Source |
 |---|---|---|---|---|
-| `hsr1992–2014.xlsx` (en-dash in filename, as downloaded) | 6.5 MB | xlsx | `Intoduction` (sic), `Pivot`, `Results` | HSE offshore statistics → National Archives hosted. <!-- TODO: exact URL + retrieval date from uploader --> |
-| `hcr2016-2021.xlsx` | 1.1 MB | xlsx | `HCRs 2016 Final` … `HCRs 2020 Final`, `HCRs 2021 Provisional`, `Summary Figures` | HSE offshore statistics page. <!-- TODO: exact URL + retrieval date from uploader --> |
+| `hsr1992–2014.xlsx` (en-dash in filename, as downloaded) | 6.5 MB | xlsx | `Intoduction` (sic), `Pivot`, `Results` | [UK Government Web Archive capture (2022-11-06) of hse.gov.uk](https://webarchive.nationalarchives.gov.uk/ukgwa/20221106163434mp_/https://www.hse.gov.uk/offshore/statistics/hsr1992%E2%80%932014.xlsx), linked from HSE's offshore statistics page as "Offshore Hydrocarbon Releases 1992 – 2016". Retrieved 2026-07-13. |
+| `hcr2016-2021.xlsx` | 1.1 MB | xlsx | `HCRs 2016 Final` … `HCRs 2020 Final`, `HCRs 2021 Provisional`, `Summary Figures` | [hse.gov.uk/offshore/assets/docs/hcr2016-2021.xlsx](https://www.hse.gov.uk/offshore/assets/docs/hcr2016-2021.xlsx), linked as "Offshore Hydrocarbon Releases 2016 – 2021". Retrieved 2026-07-13. |
 
 Both parse cleanly with openpyxl. No `.xls`/`.csv` present, so no extra
 dependencies needed.
