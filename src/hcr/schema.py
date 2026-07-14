@@ -286,6 +286,13 @@ CATEGORY_SYNONYMS: dict[str, dict[str, str]] = {
         "DEFICIENT PROCEDURES": "DEFICIENT PROCEDURE",
         "DEFICENT PROCEDURE": "DEFICIENT PROCEDURE",
     },
+    "system_primary": {
+        # spelling drift across the era boundary, observed both sides:
+        "DRILLINGEQUIPMENT": "DRILLING EQUIPMENT",
+        "DRILLINGOPS": "DRILLING OPERATIONS",
+        "DRILLING OPS": "DRILLING OPERATIONS",
+        "DRILING OPS": "DRILLING OPERATIONS",
+    },
     "operational_mode_primary": {
         # era 1 uses both spellings of the same modes:
         "WELLOPS": "WELL OPERATION",
