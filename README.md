@@ -120,8 +120,9 @@ produced it.
 
 - **Source:** HSE offshore hydrocarbon release statistics (UK Health and
   Safety Executive, offshore statistics pages).
-- **Licence:** Open Government Licence v3.0; raw files redistributed
-  unmodified with attribution to HSE.
+- **Licence:** data under the Open Government Licence v3.0, raw files
+  redistributed unmodified with attribution to HSE; code under the MIT
+  licence (see `LICENSE`).
 - **Retrieved:** 2026-07-13, from:
   - `hsr1992–2014.xlsx` — [UK Government Web Archive capture of
     hse.gov.uk](https://webarchive.nationalarchives.gov.uk/ukgwa/20221106163434mp_/https://www.hse.gov.uk/offshore/statistics/hsr1992%E2%80%932014.xlsx)
