@@ -1,6 +1,7 @@
-# Raw data is never committed (HSE source files are re-downloadable; see README provenance)
-data/raw/*
-!data/raw/.gitkeep
+# Raw HSE files ARE committed (redistribution permitted under OGL v3.0 with
+# attribution; see README provenance). Keep only derived/temp junk out.
+data/raw/~$*
+data/raw/*.tmp
 
 # Python noise
 __pycache__/

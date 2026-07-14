@@ -20,11 +20,11 @@ Design constraints (from the spec):
    downloaded files require it.
 
 .. note::
-   TODO: HSE spreadsheets may carry preamble/title rows above the header
-   row. Until the real files are inspected, sheets are read with the
-   pandas default (first row = header) and the "detected columns" in the
-   inventory must be read with that caveat. Header-row offsets, if any,
-   belong in :mod:`hcr.schema` once known.
+   The era-1 ``Results`` sheet carries a group-banner row above the real
+   header (header is row index 1). :func:`inventory` deliberately keeps
+   the pandas default (first row = header) to report files exactly as
+   they parse naively; :func:`load_source_tables` applies the correct
+   per-table header offsets recorded in ``schema.SOURCE_TABLES``.
 """
 
 from __future__ import annotations
@@ -158,3 +158,30 @@ def inventory(raw_dir: Path | str = RAW_DIR) -> pd.DataFrame:
         records,
         columns=["file", "format", "sheet", "n_rows", "n_columns", "columns", "status"],
     )
+
+
+def load_source_tables(raw_dir: Path | str = RAW_DIR) -> list[dict]:
+    """Load the release-record tables listed in ``schema.SOURCE_TABLES``
+    with their correct header rows — still raw content, no cleaning.
+
+    Returns a list of ``{"file", "sheet", "years", "frame"}`` dicts, one
+    per source table. A table that is missing or unparseable is logged
+    and skipped, never fatal: the pipeline documents gaps and moves on.
+    """
+    from hcr import schema
+
+    raw_dir = Path(raw_dir)
+    tables: list[dict] = []
+    for spec in schema.SOURCE_TABLES:
+        path = raw_dir / spec["file"]
+        try:
+            frame = pd.read_excel(
+                path, sheet_name=spec["sheet"], header=spec["header_row"]
+            )
+        except Exception as exc:  # noqa: BLE001 — deliberate: document and move on
+            logger.warning(
+                "Skipping source table %s::%s: %s", spec["file"], spec["sheet"], exc
+            )
+            continue
+        tables.append({**spec, "frame": frame})
+    return tables

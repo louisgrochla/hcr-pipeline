@@ -3,10 +3,12 @@
 A reproducible cleaning and quality-profiling pipeline for the UK offshore
 Hydrocarbon Release Database (HSE offshore statistics).
 
-> Status: scaffold. Ingest machinery and generic clean/validate/profile
-> primitives are in place; the canonical schema (Day 2) is deliberately
-> empty until the real HSE files have been inspected. See TODOs in
-> `src/hcr/schema.py`.
+> Status: Days 1–2 complete. Raw data committed with provenance
+> (`reports/inventory.md`), canonical schema and two-era column mapping
+> built from the real files (`src/hcr/schema.py`,
+> `reports/schema_mapping.md`), cleaning and validation implemented and
+> running end-to-end on all 5,278 records. Next: Day 3 category-synonym
+> mapping, then profiling.
 
 ## Purpose
 
@@ -33,11 +35,21 @@ coverage of the downloaded files. -->
 - **Source:** HSE offshore hydrocarbon release statistics (UK Health and
   Safety Executive, offshore statistics pages).
 - **Licence:** Open Government Licence v3.0.
-- **Retrieved:** <!-- TODO: fill in retrieval date and exact source URLs
-  when the files are downloaded into data/raw/. -->
+- **Retrieved:** 2026-07-13, from:
+  - `hsr1992–2014.xlsx` — [UK Government Web Archive capture of
+    hse.gov.uk](https://webarchive.nationalarchives.gov.uk/ukgwa/20221106163434mp_/https://www.hse.gov.uk/offshore/statistics/hsr1992%E2%80%932014.xlsx)
+    (linked from HSE's offshore statistics page as "Offshore Hydrocarbon
+    Releases 1992 – 2016"; the file itself covers releases to
+    31 Dec 2015 — see `reports/inventory.md`).
+  - `hcr2016-2021.xlsx` —
+    [hse.gov.uk](https://www.hse.gov.uk/offshore/assets/docs/hcr2016-2021.xlsx)
+    ("Offshore Hydrocarbon Releases 2016 – 2021"; 2021 data marked
+    provisional by HSE).
 
-Raw files are not committed (`data/raw/` is gitignored); they are
-re-downloadable from the source above.
+Raw files are committed in `data/raw/` **unmodified, under their original
+filenames**, redistributed under the Open Government Licence v3.0 with
+attribution to HSE. <!-- TODO: list each committed file with its exact
+source URL and download date. -->
 
 ## Structure
 
