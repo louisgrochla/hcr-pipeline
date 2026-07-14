@@ -207,3 +207,43 @@ class TestCleanRecords:
         assert len(out) == 2  # padding row dropped
         assert out["severity"][0] == "MINOR"
         assert list(out["non_process"]) == [False, True]
+
+
+class TestApplyCategorySynonyms:
+    def test_typos_and_variants_consolidate(self):
+        df = pd.DataFrame(
+            {
+                "operational_failure_primary": [
+                    "IMPROPER MAINTENACE",
+                    "INCORRECTETLY FITTED",
+                    "LEFT OPEN",
+                ],
+                "procedural_failure_primary": [
+                    "NON-COMPLIANCE WITH PROCEDURE",
+                    "DEFICENT PROCEDURE",
+                    None,
+                ],
+            }
+        )
+        out = clean.apply_category_synonyms(df)
+        assert list(out["operational_failure_primary"]) == [
+            "IMPROPER",
+            "INCORRECTLY FITTED",
+            "LEFT OPEN",  # already canonical: untouched
+        ]
+        assert out["procedural_failure_primary"][0] == "NON-COMPLIANCE"
+        assert out["procedural_failure_primary"][1] == "DEFICIENT PROCEDURE"
+        assert pd.isna(out["procedural_failure_primary"][2])
+
+    def test_unmapped_free_text_passes_through(self):
+        df = pd.DataFrame({"design_failure": ["SOME LONG FREE TEXT SENTENCE"]})
+        out = clean.apply_category_synonyms(df)
+        assert out["design_failure"][0] == "SOME LONG FREE TEXT SENTENCE"
+
+    def test_era1_wellops_unified(self):
+        df = pd.DataFrame({"operational_mode_primary": ["WELLOPS", "WELL OPERATION"]})
+        out = clean.apply_category_synonyms(df)
+        assert list(out["operational_mode_primary"]) == [
+            "WELL OPERATION",
+            "WELL OPERATION",
+        ]

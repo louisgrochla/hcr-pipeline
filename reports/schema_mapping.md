@@ -66,3 +66,45 @@ the canonical view, not deleted** — they remain reachable through
 The cause-resolvability number is the headline: the post-2016 reporting
 regime lost the coded cause taxonomy in practice. This feeds Day 3
 (normalisation mapping for recoverable entries) and the Day 7 report.
+
+## Category-synonym consolidation — Day 3
+
+`schema.CATEGORY_SYNONYMS`, applied by `clean.apply_category_synonyms`
+after case/whitespace normalisation. Inclusion rule: **meaning-preserving
+consolidations only** — spelling variants and typos (`IMPROPER
+MAINTENACE`, `INCORRECTETLY FITTED`, `DEFICENT PROCEDURE`,
+`COMISSIONING`), abbreviations (`WELLOPS`, `DRILLINGOPS`), punctuation
+variants, and sub-values whose parent category is unambiguous
+(`IMPROPER MAINTENANCE` → `IMPROPER`; `INTERNAL/EXTERNAL CORROSION` →
+`CORROSION`; all `NON-COMPLIANCE WITH …` → `NON-COMPLIANCE`; era-2
+design `YES`/`NO` → the era-1 phrasing).
+
+Explicitly **not** mapped (kept failing validation, by design):
+
+- Sentence-length free text (incident descriptions typed into taxonomy
+  fields).
+- Era-2 categories with no era-1 home: the `EXCURSION` family
+  (operational/pressure excursions, ~26 rows), `OVERFLOW`/`OVERFILLING`
+  (~10), `MALOPERATION …`, `DEGRADATION OF VALVE SEALING`/`FLANGE
+  GASKET` (~28), `LOSS OF BOLT TENSIONING` (10). Mapping these into
+  era-1 buckets (e.g. `MECHANICAL`, `OTHER`) would destroy the finer
+  post-2016 granularity and manufacture false comparability.
+- "Unknown-yet" markers (`FAILURE MECHANISM TO BE DETERMINED`,
+  `AWAITING INVESTIGATION`) — semantically missing, but converting a
+  present value to NA is a lossy judgement deferred until it matters.
+- One judgement call the other way: `NO OPERATIONAL FAILURE` observed
+  in the *procedural* column (3 rows) is treated as a data-entry slip
+  for `NO PROCEDURAL FAILURE`.
+
+Effect, measured on all 5,278 records:
+
+| | before | after |
+|---|---|---|
+| `cause_category_resolvable` failures | 312 | 107 |
+| pass rate | 94.09% | 97.97% |
+| era-2 share of failures | 310 | 105 |
+
+Remaining 107 by column: operational 61, equipment 51, procedural 4,
+design 1 (rows can fail on more than one column). These are the
+genuinely unrecoverable residual — quantified evidence that the
+post-2016 reporting regime abandoned the closed cause taxonomy.
