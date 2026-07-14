@@ -1,9 +1,29 @@
 # UK Offshore Hydrocarbon Release Register — Data Quality Assessment
 
-*Prepared from HSE's published HCR data, October 1992 – December 2021
-(5,278 release records). Pipeline, evidence and reproduction steps:
-this repository. Detailed workings: `inventory.md`, `schema_mapping.md`,
-`profiling.md`, `analysis.md`.*
+| | |
+|---|---|
+| **Author** | Louis Grochla |
+| **Date** | July 2026 |
+| **Status** | Final |
+| **Scope** | HSE's published HCR data, October 1992 – December 2021 (5,278 release records) |
+| **Evidence** | This repository; detailed workings in `inventory.md`, `schema_mapping.md`, `profiling.md`, `analysis.md` — every number reproducible from the `hcr` package |
+
+## Executive summary
+
+- The register is **continuous from Oct 1992 to Dec 2021** despite its
+  published labels claiming otherwise, but it splits into two
+  incompatible schema eras at the 2016 reporting-form change.
+- **The 2016 change broke the cause taxonomy**: half of post-2016
+  records carried causes resolvable to no known category; documented
+  consolidation recovers this to 17%, the rest is unrecoverable free
+  text.
+- **Physical measurements are degrading**: released quantity is 91%
+  missing by 2021, and hole sizes carry two systematic reporting
+  artefacts (1mm round-down, imperial conversion spikes).
+- **Severity classes are not comparable across the 1999 criteria
+  change.**
+- The data still supports real analysis **within stated limits** —
+  five rules for downstream analysts close this report.
 
 ## What this data is
 
@@ -106,3 +126,21 @@ involvement rose from 47% to 55% and procedural from 24% to 33% between
 ~70% — a shift toward human-and-organisational factors in the recorded
 causes of serious releases, though a change in coding practice cannot
 be excluded.
+
+## Recommendations
+
+1. **For any QRA or leak-frequency use:** work from the cleaned
+   canonical dataset, not the published spreadsheets; treat the 1–2mm
+   band as censored, and carry the validation failure counts as an
+   uncertainty statement.
+2. **For trend reporting:** anchor severity trends at 1999, annualise
+   or exclude 1992, and stop quantity-based series at 2018.
+3. **For cause analysis after 2016:** treat the ~17% unresolvable
+   residual as permanent. Recovering the codes from the incident
+   narratives was tested and does not work — the text describes what
+   happened, not why (`cause_recovery.md`); repair would need the
+   underlying investigation detail, which is not public.
+4. **For the data owner:** the 2019-onward collapse of quantity
+   reporting and the free-text cause fields are fixable at the form
+   level; restoring closed pick-lists would recover most of the lost
+   analytical value.

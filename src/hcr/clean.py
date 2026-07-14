@@ -99,7 +99,7 @@ def normalise_categories(df: pd.DataFrame) -> pd.DataFrame:
     whitespace). Synonym mapping across eras (e.g. era 1 ``WELLOPS`` vs
     ``WELL OPERATION``, era 2 free-text cause entries) changes meaning
     and belongs in an explicit, reviewable mapping table —
-    TODO(Day 3+): build that table from the failing rows reported by
+    TODO: extend that table from the failing rows reported by
     :func:`hcr.validate.cause_category_resolvable`.
 
     Applied to canonical categorical/string columns except free-ish

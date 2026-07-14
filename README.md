@@ -35,6 +35,11 @@ about it, and what a downstream analyst must know before trusting it.
 - Among serious releases 1999–2015, recorded operational and procedural
   involvement rose materially while equipment causes stayed flat
   ([`reports/analysis.md`](reports/analysis.md)).
+- **The broken post-2016 cause codes cannot be recovered by NLP** — a
+  text classifier trained on 3,190 human-coded narratives barely beats
+  the majority baseline on every cause target, showing the codes carry
+  investigation knowledge that is not in the text
+  ([`reports/cause_recovery.md`](reports/cause_recovery.md)).
 
 ![Exact-value hole-size distribution: a 1,043-release spike at exactly 1mm and imperial-conversion spikes at quarter, half and one inch](reports/figures/hole_size_distribution.png)
 
@@ -59,10 +64,10 @@ hand-edited images.
 ├── notebooks/01_eda.ipynb    exploration only; nothing load-bearing
 └── reports/
     ├── data_quality.md       THE deliverable (2 pages, client-facing)
-    ├── inventory.md          Day 1: what the raw files actually contain
-    ├── schema_mapping.md     Day 2–3: every mapping judgement, with rationale
-    ├── profiling.md          Day 5: quantified data-quality findings
-    └── analysis.md           Day 6: one question, answered with stated method
+    ├── inventory.md          what the raw files actually contain
+    ├── schema_mapping.md     every mapping judgement, with rationale
+    ├── profiling.md          quantified data-quality findings
+    └── analysis.md           one question, answered with stated method
 ```
 
 ## Usage

@@ -1,4 +1,4 @@
-# Data-quality profiling — Day 5
+# Data-quality profiling
 
 All numbers computed on the cleaned canonical dataset (5,278 records,
 1992–2021) with the `hcr.profile` functions:
