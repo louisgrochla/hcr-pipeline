@@ -3,10 +3,12 @@
 A reproducible cleaning and quality-profiling pipeline for the UK offshore
 Hydrocarbon Release Database (HSE offshore statistics).
 
-> Status: scaffold. Ingest machinery and generic clean/validate/profile
-> primitives are in place; the canonical schema (Day 2) is deliberately
-> empty until the real HSE files have been inspected. See TODOs in
-> `src/hcr/schema.py`.
+> Status: Days 1–2 complete. Raw data committed with provenance
+> (`reports/inventory.md`), canonical schema and two-era column mapping
+> built from the real files (`src/hcr/schema.py`,
+> `reports/schema_mapping.md`), cleaning and validation implemented and
+> running end-to-end on all 5,278 records. Next: Day 3 category-synonym
+> mapping, then profiling.
 
 ## Purpose
 

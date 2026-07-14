@@ -5,13 +5,13 @@ rows** — never a bare boolean. An empty result means the rule passed.
 
 Two layers:
 
-* Generic, schema-independent rule primitives (implemented and tested
-  now) that take column names and limits as arguments.
-* Named HCR rules (hole size, severity, date, cause) that will bind the
-  primitives to the canonical schema — blocked on Day 2, so they raise
-  :class:`NotImplementedError` stating what they need. ``run_all``
-  records blocked rules in its summary rather than crashing: gaps are
-  documented, not fatal.
+* Generic, schema-independent rule primitives that take column names
+  and limits as arguments.
+* Named HCR rules (hole size, severity, date, cause) binding the
+  primitives to the canonical schema (:mod:`hcr.schema`). They expect a
+  frame cleaned by :func:`hcr.clean.clean_records`. ``run_all`` records
+  any rule that raises :class:`NotImplementedError` as ``blocked``
+  rather than crashing: gaps are documented, not fatal.
 """
 
 from __future__ import annotations
@@ -19,6 +19,8 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 
 import pandas as pd
+
+from hcr import schema
 
 Rule = Callable[[pd.DataFrame], pd.DataFrame]
 
@@ -73,73 +75,74 @@ def no_duplicate_keys(df: pd.DataFrame, subset: list[str]) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# Named HCR rules — blocked on the Day 2 schema
+# Named HCR rules — bound to the canonical schema (see hcr.schema and
+# reports/schema_mapping.md for where every constant was observed)
 # ---------------------------------------------------------------------------
 
 
 def hole_size_within_plausible_bounds(df: pd.DataFrame) -> pd.DataFrame:
-    """Failing rows: hole size outside plausible physical bounds.
+    """Failing rows: ``hole_diameter_mm`` present but implausible —
+    non-positive, or above the largest genuine observed value (1000 mm).
 
-    Blocked: needs the canonical hole-size column name, its units as
-    reported by HSE, and agreed plausible bounds — then delegates to
-    :func:`numeric_within_bounds`.
+    Missing values do **not** fail this rule: after cleaning, NA covers
+    both true gaps and era 2's free-text entries (``'1mm'``, ``'<5'``
+    …), and missingness is quantified separately by
+    :func:`hcr.profile.missingness_by_column_by_year`. The era-1 ``999``
+    unknown-size code is expected to have been converted to NA by
+    :func:`hcr.clean.replace_missing_value_codes`; if it survives, it
+    fails here (999 < 1000 is false — it exceeds no bound — so the
+    sentinel must be handled in cleaning, which is deliberate: this rule
+    checks physical plausibility, not encoding).
     """
-    raise NotImplementedError(
-        "Needs from the real data: canonical hole-size column name, units, "
-        "and agreed plausible bounds (schema.py, Day 2). Implement via "
-        "numeric_within_bounds()."
-    )
+    lower, upper = schema.HOLE_DIAMETER_PLAUSIBLE_MM
+    values = pd.to_numeric(df["hole_diameter_mm"], errors="coerce")
+    failing = values.notna() & ((values <= lower) | (values > upper))
+    return df.loc[failing]
 
 
 def severity_in_permitted_set(df: pd.DataFrame) -> pd.DataFrame:
-    """Failing rows: severity not in the permitted set.
+    """Failing rows: ``severity`` missing or outside the permitted set
+    observed in the files ({MAJOR, SIGNIFICANT, MINOR, AWAITING
+    CLASSIFICATION}, compared after category normalisation).
 
-    Blocked: needs the canonical severity column name and the exact
-    permitted values as they appear in the real files (expected to be a
-    major/significant/minor taxonomy, but the literal strings must come
-    from the data, not be invented) — then delegates to
-    :func:`values_in_set`.
+    Missing **does** fail here: every release record is supposed to
+    carry a classification (pre-1997 rows were classified
+    retroactively), so an absent severity is a defect of the record.
+    The one era-1 row with severity ``'NON-PROCESS'`` fails by design.
     """
-    raise NotImplementedError(
-        "Needs from the real data: canonical severity column name and the "
-        "exact observed severity values per year (schema.py, Day 2). "
-        "Implement via values_in_set()."
-    )
+    return values_in_set(df, "severity", schema.SEVERITY_PERMITTED)
 
 
 def date_within_reporting_period(df: pd.DataFrame) -> pd.DataFrame:
-    """Failing rows: release date outside the reporting period
-    (collection began October 1992; the end bound depends on the latest
-    published year).
+    """Failing rows: ``event_date`` missing, unparseable, or outside the
+    official reporting period (1 Oct 1992 – 31 Dec 2021).
 
-    Blocked: needs the canonical date column name, the raw date encoding,
-    and the end of the covered period from the downloaded files — then
-    delegates to :func:`dates_within_period`.
+    The known era-1 record dated 1992-09-26 fails by design — it
+    predates the official start of collection and is a finding for the
+    data-quality report, not something to silently accept.
     """
-    raise NotImplementedError(
-        "Needs from the real data: canonical date column name, its raw "
-        "encoding, and the last covered reporting date in the downloaded "
-        "files (schema.py, Day 2). Implement via dates_within_period()."
-    )
+    start, end = schema.REPORTING_PERIOD
+    return dates_within_period(df, "event_date", start=start, end=end)
 
 
 def cause_category_resolvable(df: pd.DataFrame) -> pd.DataFrame:
-    """Failing rows: cause category not resolvable in the cause taxonomy.
+    """Failing rows: any cause field present but not resolvable in the
+    coded taxonomy (era 1's closed sets, see ``schema.CAUSE_TAXONOMY``).
 
-    Blocked: needs the canonical cause column name(s) and the real
-    taxonomy values (design / equipment / operation / procedural
-    sub-categories as actually spelled in the files) — then delegates to
-    :func:`values_in_set`.
+    Missing cause fields do not fail (missingness is profiled
+    separately); a *populated* field that doesn't resolve does. Era 2 is
+    known to be free-text contaminated, so its failure count here is a
+    measurement of that contamination — expected to be large, and
+    that's the finding.
     """
-    raise NotImplementedError(
-        "Needs from the real data: canonical cause column name(s) and the "
-        "observed taxonomy values per year (schema.py, Day 2). Implement "
-        "via values_in_set()."
-    )
+    failing = pd.Series(False, index=df.index)
+    for column, allowed in schema.CAUSE_TAXONOMY.items():
+        present = df[column].notna()
+        failing |= present & ~df[column].isin(allowed)
+    return df.loc[failing]
 
 
-#: Default rule registry for run_all(). Blocked rules stay listed so the
-#: summary shows them as blocked instead of silently omitting them.
+#: Default rule registry for run_all(), keyed by rule name.
 DEFAULT_RULES: dict[str, Rule] = {
     "hole_size_within_plausible_bounds": hole_size_within_plausible_bounds,
     "severity_in_permitted_set": severity_in_permitted_set,

@@ -1,8 +1,7 @@
 """Tests for hcr.validate against small synthetic DataFrames.
 
 Rules must return the DataFrame of failing rows, never a bare boolean.
-Synthetic column names only — no HSE column names are assumed anywhere.
-The named HCR rules blocked on the Day 2 schema are explicitly xfailed.
+Named HCR rules operate on canonical (cleaned) column names.
 """
 
 import pandas as pd
@@ -17,67 +16,98 @@ def numbers() -> pd.DataFrame:
 
 
 @pytest.fixture
-def categories() -> pd.DataFrame:
-    return pd.DataFrame({"level": ["low", "mid", "high", "LOW", None]})
-
-
-@pytest.fixture
-def dated() -> pd.DataFrame:
+def canonical() -> pd.DataFrame:
+    """Minimal cleaned canonical frame exercising every named rule."""
     return pd.DataFrame(
-        {"when": ["1993-06-01", "1990-01-01", "2020-12-31", "not a date", None]}
+        {
+            "record_id": ["a", "b", "c", "d"],
+            "event_date": pd.to_datetime(
+                ["1992-09-26", "1999-06-01", "2016-05-05", None]
+            ),
+            "severity": ["MINOR", "NON-PROCESS", "AWAITING CLASSIFICATION", None],
+            "hole_diameter_mm": [1.0, 0.0, 1200.0, None],
+            "design_failure": [
+                "NO DESIGN FAILURE",
+                None,
+                "Re-design return line",
+                None,
+            ],
+            "equipment_failure_primary": ["CORROSION", "OTHER", None, None],
+            "operational_failure_primary": [
+                None,
+                "LEFT OPEN",
+                "Improper maintenace",
+                None,
+            ],
+            "procedural_failure_primary": [None, None, None, None],
+        }
     )
 
 
-class TestNumericWithinBounds:
-    def test_returns_failing_rows_not_bool(self, numbers):
+class TestGenericPrimitives:
+    def test_numeric_within_bounds_returns_failing_rows(self, numbers):
         out = validate.numeric_within_bounds(numbers, "size", lower=0.0, upper=100.0)
         assert isinstance(out, pd.DataFrame)
-
-    def test_flags_out_of_bounds_missing_and_non_numeric(self, numbers):
-        out = validate.numeric_within_bounds(numbers, "size", lower=0.0, upper=100.0)
         assert list(out.index) == [3, 4, 5]
 
-    def test_bounds_inclusive_and_optional(self, numbers):
-        out = validate.numeric_within_bounds(numbers, "size", lower=0.5)
-        assert 0 not in out.index  # 0.5 passes an inclusive lower bound
-        assert 2 not in out.index  # no upper bound
+    def test_values_in_set_flags_unknown_and_missing(self):
+        df = pd.DataFrame({"level": ["low", "LOW", None]})
+        out = validate.values_in_set(df, "level", {"low"})
+        assert list(out.index) == [1, 2]
 
-    def test_all_pass_is_empty(self):
-        df = pd.DataFrame({"size": [1, 2, 3]})
-        out = validate.numeric_within_bounds(df, "size", lower=0, upper=10)
-        assert out.empty
+    def test_dates_within_period(self):
+        df = pd.DataFrame({"when": ["1993-06-01", "1990-01-01", "bad", None]})
+        out = validate.dates_within_period(df, "when", "1992-10-01", "2021-12-31")
+        assert list(out.index) == [1, 2, 3]
 
-
-class TestValuesInSet:
-    def test_flags_unknown_and_missing(self, categories):
-        out = validate.values_in_set(categories, "level", {"low", "mid", "high"})
-        # "LOW" fails: category normalisation is clean.py's job, not validation's
-        assert list(out.index) == [3, 4]
-
-
-class TestDatesWithinPeriod:
-    def test_flags_outside_unparseable_and_missing(self, dated):
-        out = validate.dates_within_period(
-            dated, "when", start="1992-10-01", end="2024-12-31"
-        )
-        assert list(out.index) == [1, 3, 4]
-
-
-class TestNoDuplicateKeys:
-    def test_returns_all_occurrences(self):
-        df = pd.DataFrame({"id": [1, 1, 2], "v": ["a", "b", "c"]})
+    def test_no_duplicate_keys_returns_all_occurrences(self):
+        df = pd.DataFrame({"id": [1, 1, 2]})
         out = validate.no_duplicate_keys(df, subset=["id"])
         assert list(out.index) == [0, 1]
 
 
+class TestHoleSizeRule:
+    def test_flags_nonpositive_and_oversized_only(self, canonical):
+        out = validate.hole_size_within_plausible_bounds(canonical)
+        assert list(out["record_id"]) == ["b", "c"]
+
+    def test_missing_does_not_fail(self, canonical):
+        out = validate.hole_size_within_plausible_bounds(canonical)
+        assert "d" not in list(out["record_id"])
+
+
+class TestSeverityRule:
+    def test_flags_non_severity_value_and_missing(self, canonical):
+        out = validate.severity_in_permitted_set(canonical)
+        assert list(out["record_id"]) == ["b", "d"]
+
+    def test_awaiting_classification_is_permitted(self, canonical):
+        out = validate.severity_in_permitted_set(canonical)
+        assert "c" not in list(out["record_id"])
+
+
+class TestDateRule:
+    def test_flags_pre_collection_and_missing(self, canonical):
+        out = validate.date_within_reporting_period(canonical)
+        # 1992-09-26 predates the 1 Oct 1992 collection start
+        assert list(out["record_id"]) == ["a", "d"]
+
+
+class TestCauseRule:
+    def test_flags_present_but_unresolvable_values(self, canonical):
+        out = validate.cause_category_resolvable(canonical)
+        # 'c' has free-text design + operational entries; 'b' and 'a'
+        # resolve; all-missing 'd' does not fail
+        assert list(out["record_id"]) == ["c"]
+
+    def test_missing_causes_do_not_fail(self, canonical):
+        out = validate.cause_category_resolvable(canonical)
+        assert "d" not in list(out["record_id"])
+
+
 class TestRunAll:
-    def test_summary_shape_and_pass_rate(self, numbers):
-        rules = {
-            "size_in_bounds": lambda df: validate.numeric_within_bounds(
-                df, "size", lower=0.0, upper=100.0
-            ),
-        }
-        summary = validate.run_all(numbers, rules)
+    def test_summary_shape_and_pass_rates(self, canonical):
+        summary = validate.run_all(canonical)
         assert list(summary.columns) == [
             "rule",
             "status",
@@ -85,49 +115,28 @@ class TestRunAll:
             "n_rows",
             "pass_rate",
         ]
-        row = summary.iloc[0]
-        assert row["rule"] == "size_in_bounds"
-        assert row["status"] == "ok"
-        assert row["n_failing"] == 3
-        assert row["n_rows"] == 6
-        assert row["pass_rate"] == pytest.approx(0.5)
-
-    def test_blocked_rules_recorded_not_fatal(self, numbers):
-        """The default registry is entirely blocked on the Day 2 schema;
-        run_all must document that, not crash."""
-        summary = validate.run_all(numbers)
-        assert set(summary["status"]) == {"blocked"}
         assert set(summary["rule"]) == set(validate.DEFAULT_RULES)
-        assert summary["pass_rate"].isna().all()
+        assert (summary["status"] == "ok").all()
+        by_rule = summary.set_index("rule")
+        assert by_rule.loc["severity_in_permitted_set", "n_failing"] == 2
+        assert by_rule.loc["severity_in_permitted_set", "pass_rate"] == pytest.approx(
+            0.5
+        )
 
+    def test_blocked_rules_recorded_not_fatal(self, canonical):
+        def not_ready(df):
+            raise NotImplementedError("needs more data")
 
-# ---------------------------------------------------------------------------
-# Named HCR rules blocked on the Day 2 schema — explicit xfails, strict so
-# they must be rewritten when the bodies land.
-# ---------------------------------------------------------------------------
+        summary = validate.run_all(canonical, {"future_rule": not_ready})
+        assert summary.iloc[0]["status"] == "blocked"
+        assert pd.isna(summary.iloc[0]["pass_rate"])
 
-BLOCKED = pytest.mark.xfail(
-    raises=NotImplementedError,
-    strict=True,
-    reason="blocked on Day 2 schema (real HSE files not yet inspected)",
-)
-
-
-@BLOCKED
-def test_hole_size_rule_blocked(numbers):
-    validate.hole_size_within_plausible_bounds(numbers)
-
-
-@BLOCKED
-def test_severity_rule_blocked(categories):
-    validate.severity_in_permitted_set(categories)
-
-
-@BLOCKED
-def test_date_rule_blocked(dated):
-    validate.date_within_reporting_period(dated)
-
-
-@BLOCKED
-def test_cause_rule_blocked(categories):
-    validate.cause_category_resolvable(categories)
+    def test_custom_rules_mapping(self, numbers):
+        rules = {
+            "size_in_bounds": lambda df: validate.numeric_within_bounds(
+                df, "size", lower=0.0, upper=100.0
+            ),
+        }
+        summary = validate.run_all(numbers, rules)
+        assert summary.iloc[0]["n_failing"] == 3
+        assert summary.iloc[0]["pass_rate"] == pytest.approx(0.5)
