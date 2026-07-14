@@ -36,11 +36,15 @@ cause entry that resolves to no known category; conservative,
 documented consolidation recovers this to 17%. The residual is
 unrecoverable without re-coding source reports.
 
+![Fraction of releases per year with missing hole-diameter and released-quantity values](figures/measurement_missingness.png)
+
 **2. Physical measurements are degrading.** Released quantity is
 missing for 67% of 2019 records, 76% of 2020, 91% of 2021 — effectively
 unusable after 2018. Hole diameter, near-complete in era 1 (3.6%
 missing), is 20% missing/unparseable in era 2, including entries like
 "1mm", "<5", and "Two holes: 10mm and 5mm" typed into a numeric field.
+
+![Exact-value hole-size distribution, 0-30mm](figures/hole_size_distribution.png)
 
 **3. Hole sizes are rounded, not measured.** Of all releases with an
 equivalent hole diameter between 1 and 2mm inclusive, 60.5% sit at
@@ -48,6 +52,8 @@ exactly 1.0mm (1,043 records) against 25.6% in the entire open interval
 — a round-down step no physical process produces. Spikes at 6.35, 12.7,
 25.4 and 50.8mm (¼″–2″) show a second, imperial, measurement culture.
 QRA frequency curves built on these values inherit both artefacts.
+
+![Yearly share of releases by severity class, with the 1999 criteria boundary marked](figures/severity_drift.png)
 
 **4. Severity is not comparable across 1999.** Classification criteria
 were introduced in 1997 and refined in 1999; pre-1997 records were
