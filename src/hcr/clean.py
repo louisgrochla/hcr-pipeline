@@ -192,6 +192,29 @@ def drop_duplicate_records(df: pd.DataFrame) -> pd.DataFrame:
     return df.drop_duplicates(subset=["record_id"], keep="first").reset_index(drop=True)
 
 
+def apply_category_synonyms(df: pd.DataFrame) -> pd.DataFrame:
+    """Consolidate category values via the explicit synonym table
+    ``schema.CATEGORY_SYNONYMS`` (spelling variants, typos,
+    abbreviations, and sub-values with an unambiguous parent — e.g.
+    ``'IMPROPER MAINTENACE'`` → ``'IMPROPER'``, era 1's own ``'WELLOPS'``
+    vs ``'WELL OPERATION'``).
+
+    Runs after :func:`normalise_categories` (the table is keyed on
+    case/whitespace-normalised values). Values not in the table pass
+    through unchanged: sentence-length free text and era-2 categories
+    with no era-1 home (EXCURSION, OVERFLOW families) deliberately stay
+    as-is and keep failing
+    :func:`hcr.validate.cause_category_resolvable` — the honest
+    measurement of the taxonomy loss. Every table entry is documented in
+    ``reports/schema_mapping.md``.
+    """
+    out = df.copy()
+    for col, synonyms in schema.CATEGORY_SYNONYMS.items():
+        if col in out.columns:
+            out[col] = out[col].map(lambda v: synonyms.get(v, v))
+    return out
+
+
 def drop_deliberate_releases(df: pd.DataFrame) -> pd.DataFrame:
     """Filter to rows not flagged ``non_process``.
 
@@ -221,6 +244,7 @@ def clean_records(df: pd.DataFrame, year: int) -> pd.DataFrame:
     out = drop_empty_rows(out)
     out = replace_blank_sentinel(out)
     out = normalise_categories(out)
+    out = apply_category_synonyms(out)
     out = coerce_types(out)
     out = replace_missing_value_codes(out)
     out = derive_non_process(out)

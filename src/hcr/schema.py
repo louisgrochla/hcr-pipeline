@@ -223,3 +223,87 @@ def source_mapping_for_year(year: int) -> dict[str, str]:
     year is a data gap to document, not to paper over).
     """
     return YEAR_TO_SOURCE_COLUMNS[year]
+
+
+#: Category-synonym table (Day 3): {canonical_column: {observed: target}}.
+#: Keys are values AS OBSERVED AFTER case/whitespace normalisation
+#: (uppercase, collapsed spaces). Only meaning-preserving consolidations
+#: are included — spelling variants, typos, abbreviations, and sub-values
+#: whose parent category is unambiguous. Sentence-length free text and
+#: genuinely new era-2 categories with no era-1 home (e.g. the EXCURSION
+#: and OVERFLOW families) are deliberately NOT mapped: they keep failing
+#: cause_category_resolvable, which is the honest measurement. Every
+#: entry is documented in reports/schema_mapping.md.
+CATEGORY_SYNONYMS: dict[str, dict[str, str]] = {
+    "design_failure": {
+        "YES": "FAILURE RELATED TO DESIGN",
+        "NO": "NO DESIGN FAILURE",
+    },
+    "equipment_failure_primary": {
+        "INTERNAL/EXTERNAL CORROSION": "CORROSION",
+        "INTERNAL CORROSION": "CORROSION",
+        "EXTERNAL CORROSION": "CORROSION",
+        "MECHANICAL FAILURE DUE TO WEAR OUT / FATIGUE": "MECHANICAL",
+        "MECHANICAL FAILURE DUE TO WEAR OUT": "MECHANICAL",
+        "MECHANICAL FAILURE DUE TO FATIGUE": "MECHANICAL",
+        "MECHANICAL FATIGUE": "MECHANICAL",
+        "EQUIPMENT FAILURE MECHANICAL": "MECHANICAL",
+        "MATERIAL DEFECT": "MATERIAL DEFECTS",
+    },
+    "operational_failure_primary": {
+        "IMPROPER MAINTENANCE": "IMPROPER",
+        "IMPROPER MAINTENANCE.": "IMPROPER",
+        "IMPROPER MAINTENACE": "IMPROPER",
+        "IMPROPER MAINTEANNCE": "IMPROPER",
+        "IMPROPER OPERATION": "IMPROPER",
+        "IMPROPER TESTING": "IMPROPER",
+        "IMPROPER INSPECTION": "IMPROPER",
+        "IMPROPER INSPECTION / MAINTENANCE / OPERATION": "IMPROPER",
+        "INCORRECTLY FITTED.": "INCORRECTLY FITTED",
+        "INCORRECT FITTING": "INCORRECTLY FITTED",
+        "INCORRECTETLY FITTED": "INCORRECTLY FITTED",
+        "INCORRRECTLY FITTED": "INCORRECTLY FITTED",
+        "INCORRECTLY FIXED": "INCORRECTLY FITTED",
+        "OTHER / OTHER IMPACT": "DROPPED OBJECT/OTHER IMPACT",
+        "OTHER IMPACT": "DROPPED OBJECT/OTHER IMPACT",
+        "IMPACT": "DROPPED OBJECT/OTHER IMPACT",
+    },
+    "procedural_failure_primary": {
+        "NON-COMPLIANCE WITH PROCEDURE/PERMIT TO WORK": "NON-COMPLIANCE",
+        "NON-COMPLIANCE WITH PROCEDURE": "NON-COMPLIANCE",
+        "NON-COMPLIANCE WITH PROCEDURE.": "NON-COMPLIANCE",
+        "NON-COMPLIANCE WITH": "NON-COMPLIANCE",
+        "NON COMPLIANCE WITH PROCEDURE": "NON-COMPLIANCE",
+        "NON COMPLIANCE WITH": "NON-COMPLIANCE",
+        "NON-COMPLIANCE WITH PERMIT-TO-WORK": "NON-COMPLIANCE",
+        "NON-COMPLIANCE WITH PERMIT TO WORK": "NON-COMPLIANCE",
+        "NON COMPLIANCE WITH PERMIT TO WORK": "NON-COMPLIANCE",
+        "NO": "NO PROCEDURAL FAILURE",
+        "NO PROCEDURAL CAUSE": "NO PROCEDURAL FAILURE",
+        # observed in the procedural column; reads as a data-entry slip
+        # for "no failure" — documented judgement call:
+        "NO OPERATIONAL FAILURE": "NO PROCEDURAL FAILURE",
+        "DEFICIENT PROCEDURES": "DEFICIENT PROCEDURE",
+        "DEFICENT PROCEDURE": "DEFICIENT PROCEDURE",
+    },
+    "operational_mode_primary": {
+        # era 1 uses both spellings of the same modes:
+        "WELLOPS": "WELL OPERATION",
+        "DRILLINGOPS": "DRILLING OPERATION",
+        "DRILLING": "DRILLING OPERATION",
+        "WELLS OPS WITH TREE": "WELL OPERATIONS WITH TREE",
+        "WELL OPERATION WITH TREE": "WELL OPERATIONS WITH TREE",
+        "WELL OPERATIONS WITHOT TREE": "WELL OPERATIONS WITHOUT TREE",
+        "START UP": "STARTUP",
+        "OPERATIONAL MODE STARTUP": "STARTUP",
+        "COMISSIONING": "COMMISSIONING",
+        "MAINTENANCE (PLANNED)": "PLANNED MAINTENANCE",
+        "MAINTENANCE (CORRECTIVE)": "CORRECTIVE MAINTENANCE",
+        "PIPELINE OPERATIONAL INCLUDING PIGGING": (
+            "PIPELINE OPERATIONS INCLUDING PIGGING"
+        ),
+        "PIGGING/PIPELINE OPERATIONS INCLUDING PIGGING": (
+            "PIPELINE OPERATIONS INCLUDING PIGGING"
+        ),
+    },
+}
